@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<!--
+ @license
+ Copyright 2019 Google LLC. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+-->
+<html>
+
+  <head>
+    <title>Drawing Tools</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+<style>
+/**
+ * @license
+ * Copyright 2019 Google LLC. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+
+ * Always set the map height explicitly to define the size of the div element
+ * that contains the map. 
+ */
+#map {
+  height: 100%;
+}
+
+#floating-panel {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  /* background-color: #fff; */
+  padding: 5px;
+  border: 1px solid #999;
+  text-align: center;
+  font-family: "Roboto", "sans-serif";
+  line-height: 30px;
+  padding-left: 10px;
+}
+
+
+
+/* 
+ * Optional: Makes the sample page fill the window. 
+ */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+</style>
+<script>
+// INÍCIO
+
+function initMap() {
+  const map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat:  -22.7776022, lng: -47.00042 }, // Região de Campinas - SP
+  	mapTypeId: 'hybrid',
+    zoom: 9
+  });
+  const drawingManager = new google.maps.drawing.DrawingManager({
+    drawingMode: google.maps.drawing.OverlayType.POLYGON,
+    drawingControl: true,
+    drawingControlOptions: {
+      position: google.maps.ControlPosition.TOP_RIGHT,
+      drawingModes: [
+        //google.maps.drawing.OverlayType.MARKER,
+        //google.maps.drawing.OverlayType.CIRCLE,
+        google.maps.drawing.OverlayType.POLYGON,
+        //google.maps.drawing.OverlayType.POLYLINE,
+        //google.maps.drawing.OverlayType.RECTANGLE,
+      ],
+    },
+    polygonOptions: {
+      //fillColor: "#ffff00",
+      //fillOpacity: 1,
+      //strokeWeight: 5,
+      clickable: true,
+      editable: false,
+      geodesic: true,
+  		strokeColor: "#00FF00"
+    },
+  });
+
+  drawingManager.setMap(map);
+  
+  
+  var polygons = [];
+  var areasData = [];
+  
+
+  // DEFINIR CENTRO E ZOOM
+  
+  setCurrentLocation();
+  
+  if (localStorage.zoomData) {
+    map.setZoom(+localStorage.zoomData);
+ 	}
+
+	map.addListener('zoom_changed', function() {
+  	var zoom = map.getZoom();
+  	localStorage.zoomData = zoom; 
+	});
+
+  if (localStorage.centerData) {
+  	var center= localStorage.centerData.split(',');
+		var lt = Number(center[0].replace("(", ""));
+    var ln = Number(center[1].replace(")", ""));
+    map.setCenter({lat: lt, lng: ln});
+ 	}
+
+	map.addListener('dragend', function() {
+  	var center = map.getCenter();
+    localStorage.centerData = center; 
+	});
+	
+  function setCurrentLocation() {
+  	if (!localStorage.centerData) {
+  		if (navigator.geolocation) {
+	      navigator.geolocation.getCurrentPosition(setPosition);
+	   	} else { 
+	      alert("Geolocalização não suportada por este navegador.");
+	    }
+	  }
+  }  
+
+  function setPosition(position) {
+    var LatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+    map.setCenter(LatLong);
+    map.setZoom(15);
+  
+  }
+
+  // DEFINIR CENTRO E ZOOM - FIM
+  
+  // ARMAZENAR POLÍGONOS NO LOCAL STORAGE
+
+  
+ 	if(localStorage.areasData) {
+ 		areasData = JSON.parse(localStorage.areasData);
+ 	}
+ 
+ 	   
+  
+	google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
+  	//console.log('Polígono completo', polygon);
+    var encodedPath = google.maps.geometry.encoding.encodePath(polygon.getPath());
+    let nomeArea = prompt("Digite um nome único para esta área (ou pressione Cancelar para apagar):");
+    while (nomeArea != null && checkVal(areasData, nomeArea)) {
+    	nomeArea = prompt("Digite um nome único para esta área (ou pressione Cancelar para apagar):");
+    }
+    
+    if (nomeArea != null && nomeArea != '') {
+    
+    	var areaHa = (1/10000) * google.maps.geometry.spherical.computeArea(polygon.getPath());
+    	areasData.push([nomeArea, encodedPath, areaHa]);
+      polygons.push(polygon);
+    	localStorage.setItem('areasData', JSON.stringify(areasData));
+    	polygonActions(polygon, map, "<p>" + nomeArea + "</p>" + Math.round(100 * areaHa)/100 + " ha");  
+      
+ 		} else {
+    	
+      polygon.setMap(null);
+      
+    }
+    
+    
+    
+	});
+  
+  
+  function checkVal(array, value) {
+    // `Array#some` loops through the array until the iterator
+    // function returns true; it returns true if the iterator
+    // does at some point, false otherwise
+    return array.some(function(entry) {
+        // If this entry in the array is an array, recurse
+        if (Array.isArray(entry)) {
+            return checkVal(entry, value);
+        }
+
+        // It isn't, do an equality check
+        return entry === value;
+    });
+	}
+  
+  // ARMAZENAR POLÍGONO NO LOCAL STORAGE - FIM    
+  
+ 
+  
+  
+  // MOSTRAR POLÍGONOS ARMAZENADOS
+	  
+ 	var dataStr = ''
+  
+  if(localStorage.areasData) {
+  
+  	areasData = JSON.parse(localStorage.areasData);
+  	areasData.forEach(showPolygon);
+    areasData.forEach(appendDataStr);
+    
+  
+  }
+
+  function appendDataStr(value, index, array) {
+  	dataStr += '{"Nome": "' + value[0] + '", "Caminho": "' + google.maps.geometry.encoding.decodePath(value[1]) + '", "Área (ha)": "' + value[2] + '"}\n'
+  	  
+  }
+
+	document.getElementById("remover").addEventListener("click", removeSelectedPolygons);
+
+	function removeSelectedPolygons() {
+		
+    var selectedPolygons = [];
+    
+    polygons.forEach( function(item, index) {
+    	if(item.getEditable()) {
+	      selectedPolygons.push(item);
+  	   }
+    });
+    
+    if (selectedPolygons.length > 0) {
+    
+    	if (confirm("Confirma remoção da(s) área(s) selecionada(s)?")) {
+
+				for (var i = 0; i < polygons.length; i++) { 
+                                   
+        	if (polygons[i].getEditable()) { 
+            polygons[i].setMap(null);
+  					polygons.splice(i, 1); 
+            areasData.splice(i, 1);
+  					i--; 
+            
+        	}
+    		}
+        
+	      localStorage.setItem('areasData', JSON.stringify(areasData));
+
+
+			}			  			    
+      
+    } else {
+    	alert("Para remover uma área, clique sobre ela e depois pressione o botão 'Remover áreas selecionadas'.");
+    
+    }
+
+    
+	}
+
+
+	function showPolygon(value, index, array) {
+  	//alert(value);
+    const path = google.maps.geometry.encoding.decodePath(value[1]);
+    
+  	var poly = new google.maps.Polygon({
+    	map,
+      path:path,
+      clickable: true,
+      editable: false,
+      strokeColor: "#00FF00",
+      geodesic: true
+
+    });
+    
+		polygons.push(poly);
+    
+    
+		
+		
+    polygonActions(poly, map, "<p>" + value[0] + "</p>" + Math.round(100 * value[2])/100 + " ha");  
+  }
+  
+  function polygonActions(polygon, map, html) { 
+		google.maps.event.addListener(polygon, 'mouseover', function() { 
+    	var vertices = polygon.getPath();
+    	var bounds = new google.maps.LatLngBounds();
+    	vertices.forEach(function(xy,i){
+       	bounds.extend(xy);
+    	});
+    	infoWindow = new google.maps.InfoWindow();
+			infoWindow.setContent(html); 
+      infoWindow.setPosition(bounds.getCenter());
+			infoWindow.open(map, polygon); 
+		});
+    google.maps.event.addListener(polygon,'mouseout',function(){
+    	infoWindow.close(map, polygon);
+      //polygon.setEditable(false);
+    });
+    
+    google.maps.event.addListener(polygon,'click', function()	{
+      
+      if (! polygon.getEditable()) {
+      
+      	polygon.setEditable(true);
+ 
+ 			} else {
+      	polygon.setEditable(false);
+      
+    	}
+      
+
+    });
+    
+  	google.maps.event.addListener(polygon.getPath(), 'set_at', function(evt) {
+      changePolygon(polygon);
+    })
+  	google.maps.event.addListener(polygon.getPath(), 'insert_at', function(evt) {
+      changePolygon(polygon);
+    })
+  	google.maps.event.addListener(polygon.getPath(), 'remove_at', function(evt) {
+      changePolygon(polygon);
+    })
+
+
+	} 
+
+	function changePolygon(polygon) {
+
+    polygons.forEach( function(item, index) {
+    	var areaHaNew = (1/10000) * google.maps.geometry.spherical.computeArea(item.getPath());
+      encodedPath = google.maps.geometry.encoding.encodePath(polygon.getPath());
+      if (areaHaNew != areasData[index][2]) {
+      
+      	if (confirm('A modificação no tamanho da área ' + areasData[index][0] + ' pode causar inconsistências no histórico e nas atividades já programadas. Confirma a modificação?')) {
+        	areasData[index][1] = encodedPath;
+      		areasData[index][2] = areaHaNew;
+          localStorage.setItem('areasData', JSON.stringify(areasData));
+      
+      	}
+      }
+      //console.log(a);
+    });
+ 
+
+
+	}
+  
+ 
+  // MOSTRAR POLÍGONOS ARMAZENADOS - FIM
+   
+  
+
+}
+
+
+
+
+
+// FIM
+  
+</script>
+
+
+  </head>
+
+  <body>
+    <div id="floating-panel">
+      <input id="remover" type="button" value="Remover áreas selecionadas" />
+     </div>
+    <div id="map"></div>
+
+    <!-- 
+     The `defer` attribute causes the callback to execute after the full HTML
+     document has been parsed. For non-blocking uses, avoiding race conditions,
+     and consistent behavior across browsers, consider loading using Promises
+     with https://www.npmjs.com/package/@googlemaps/js-api-loader.
+    -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&callback=initMap&libraries=drawing,geometry&v=weekly" defer></script>
+  </body>
+
+</html>

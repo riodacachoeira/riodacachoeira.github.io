@@ -53,29 +53,12 @@ body {
 
 // INÍCIO
 
-function getParams() {
-var idx = document.URL.indexOf('?');
-alert(document.URL);
-var params = [];
-if (idx != -1) {
-var pairs = document.URL.substring(idx+1, document.URL.length).split('&');
-for (var i=0; i<pairs.length; i++) {
-nameVal = pairs[i].split('=');
-params[nameVal[0]] = nameVal[1];
-   }
-}
-return params;
-}
-params = getParams();
 
-//alert(params.editor_console);
-
-var email = params.email;
-
-alert(email);
 
 function initMap(email) {
 
+	params = getParams();
+	var email = params.email;
 	alert(email);
   
   const map = new google.maps.Map(document.getElementById("map"), {
@@ -385,8 +368,6 @@ function initMap(email) {
  
   // MOSTRAR POLÍGONOS ARMAZENADOS - FIM
   
-  
-
 }
 
 
@@ -452,7 +433,19 @@ async function findKey (codigo) {
 
 }
 
-
+function getParams() {
+var idx = document.URL.indexOf('?');
+alert(document.URL);
+var params = [];
+if (idx != -1) {
+var pairs = document.URL.substring(idx+1, document.URL.length).split('&');
+for (var i=0; i<pairs.length; i++) {
+nameVal = pairs[i].split('=');
+params[nameVal[0]] = nameVal[1];
+   }
+}
+return params;
+}
 
 
 // FIM

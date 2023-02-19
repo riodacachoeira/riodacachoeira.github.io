@@ -57,9 +57,6 @@ body {
 
 function initMap() {
 
-	params = getParams();
-	var email = params.email;
-	//alert(email);
   
   const map = new google.maps.Map(document.getElementById("map"), {
     center: { lat:  -22.7776022, lng: -47.00042 }, // Região de Campinas - SP
@@ -372,7 +369,9 @@ function initMap() {
 
 
 async function updateRow (rowid, area) {
-  const corpo = {
+  params = getParams();
+	var email = params.email;
+	const corpo = {
 		"Action": "Edit",
     "Properties": {"RunAsUserEmail": "" + email + ""},
 		"Rows": 
@@ -404,6 +403,10 @@ async function updateRow (rowid, area) {
 
 
 async function findKey (codigo) {
+	
+  params = getParams();
+	var email = params.email;
+
   const corpo = {
 		"Action": "Find",
  		 "Properties": {
@@ -448,7 +451,8 @@ return params;
 }
 
 
-// FIM  
+// FIM
+
 
 </script>
 

@@ -51,16 +51,15 @@ body {
 </style>
 <script>
 
-
 // INÍCIO
 
 
 
-function initMap(email) {
+function initMap() {
 
 	params = getParams();
 	var email = params.email;
-	alert(email);
+	//alert(email);
   
   const map = new google.maps.Map(document.getElementById("map"), {
     center: { lat:  -22.7776022, lng: -47.00042 }, // Região de Campinas - SP
@@ -375,7 +374,7 @@ function initMap(email) {
 async function updateRow (rowid, area) {
   const corpo = {
 		"Action": "Edit",
-    "Properties": {"RunAsUserEmail": "USEREMAIL()"},
+    "Properties": {"RunAsUserEmail": "" + email + ""},
 		"Rows": 
     	[{"Row ID": "" + rowid + "",
       	"area_ha": "" + area + ""
@@ -409,7 +408,7 @@ async function findKey (codigo) {
 		"Action": "Find",
  		 "Properties": {
      		"Selector": "Filter(local_cultivo, [codigo] = '" + codigo + "')",
-        "RunAsUserEmail": "USEREMAIL()",
+        "RunAsUserEmail": "" + email + "",
 			},
 		"Rows": 
     	[
@@ -449,10 +448,7 @@ return params;
 }
 
 
-// FIM
-
-
-  
+// FIM  
 
 </script>
 

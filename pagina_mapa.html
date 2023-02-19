@@ -371,6 +371,7 @@ function initMap() {
 async function updateRow (rowid, area) {
   params = getParams();
 	var email = params.email;
+  alert(email);
 	const corpo = {
 		"Action": "Edit",
     "Properties": {"RunAsUserEmail": "" + email + ""},
@@ -406,6 +407,7 @@ async function findKey (codigo) {
 	
   params = getParams();
 	var email = params.email;
+  alert(email);
 
   const corpo = {
 		"Action": "Find",
@@ -452,7 +454,6 @@ return params;
 
 
 // FIM
-
 
 </script>
 

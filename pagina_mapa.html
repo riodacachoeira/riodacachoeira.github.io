@@ -174,7 +174,7 @@ function initMap() {
 		    	localStorage.setItem('areasData', JSON.stringify(areasData));
 		    	polygonActions(polygon, map, "<p>" + nomeArea + "</p>" + Math.round(100 * areaHa)/100 + " ha");  
           
-          updateRow (value, areaHa, decodedPath);
+          updateRow (value, nomeArea, areaHa, decodedPath);
           alert("Os dados do talhão de código ''" + nomeArea + "'' foram atualizados no aplicativo.");
           
          }
@@ -369,7 +369,7 @@ function initMap() {
 }
 
 
-async function updateRow (rowid, area, decodedPath) {
+async function updateRow (rowid, nomeArea, area, decodedPath) {
   params = getParams();
 	var email = params.email;
   //alert(email);
@@ -378,6 +378,7 @@ async function updateRow (rowid, area, decodedPath) {
     "Properties": {"RunAsUserEmail": "" + email + ""},
 		"Rows": 
     	[{"Row ID": "" + rowid + "",
+      	"codigo": "" + nomeArea + "",
       	"area_ha": "" + area + "",
         "poligono_wgs": "" + decodedPath + ""
       }]
@@ -456,6 +457,7 @@ return params;
 
 
 // FIM
+
 
 
 </script>

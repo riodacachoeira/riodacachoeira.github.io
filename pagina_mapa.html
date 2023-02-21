@@ -51,6 +51,7 @@ body {
 </style>
 <script>
 
+
 // INÍCIO
 
 
@@ -58,277 +59,277 @@ body {
 function initMap() {
 
   
-  const map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat:  -22.7776022, lng: -47.00042 }, // Região de Campinas - SP
-  	mapTypeId: 'hybrid',
-    zoom: 9
-  });
-  const drawingManager = new google.maps.drawing.DrawingManager({
-    drawingMode: google.maps.drawing.OverlayType.POLYGON,
-    drawingControl: true,
-    drawingControlOptions: {
-      position: google.maps.ControlPosition.TOP_RIGHT,
-      drawingModes: [
-        //google.maps.drawing.OverlayType.MARKER,
-        //google.maps.drawing.OverlayType.CIRCLE,
-        google.maps.drawing.OverlayType.POLYGON,
-        //google.maps.drawing.OverlayType.POLYLINE,
-        //google.maps.drawing.OverlayType.RECTANGLE,
-      ],
-    },
-    polygonOptions: {
-      //fillColor: "#ffff00",
-      //fillOpacity: 1,
-      //strokeWeight: 5,
-      clickable: true,
-      editable: false,
-      geodesic: true,
-  		strokeColor: "#00FF00"
-    },
-  });
+const map = new google.maps.Map(document.getElementById("map"), {
+  center: { lat:  -22.7776022, lng: -47.00042 }, // Região de Campinas - SP
+  mapTypeId: 'hybrid',
+  zoom: 9
+});
+const drawingManager = new google.maps.drawing.DrawingManager({
+  drawingMode: google.maps.drawing.OverlayType.POLYGON,
+  drawingControl: true,
+  drawingControlOptions: {
+    position: google.maps.ControlPosition.TOP_RIGHT,
+    drawingModes: [
+      //google.maps.drawing.OverlayType.MARKER,
+      //google.maps.drawing.OverlayType.CIRCLE,
+      google.maps.drawing.OverlayType.POLYGON,
+      //google.maps.drawing.OverlayType.POLYLINE,
+      //google.maps.drawing.OverlayType.RECTANGLE,
+    ],
+  },
+  polygonOptions: {
+    //fillColor: "#ffff00",
+    //fillOpacity: 1,
+    //strokeWeight: 5,
+    clickable: true,
+    editable: false,
+    geodesic: true,
+    strokeColor: "#00FF00"
+  },
+});
 
-  drawingManager.setMap(map);
-  
-  
- 
-  
-  
-  var polygons = [];
-  var areasData = [];
-  
+drawingManager.setMap(map);
 
-  // DEFINIR CENTRO E ZOOM
-  
-  setCurrentLocation();
-  
-  
-  if (localStorage.zoomData) {
-    map.setZoom(+localStorage.zoomData);
- 	}
 
-	map.addListener('zoom_changed', function() {
-  	var zoom = map.getZoom();
-  	localStorage.zoomData = zoom; 
-	});
 
-  if (localStorage.centerData) {
-  	var center= localStorage.centerData.split(',');
-		var lt = Number(center[0].replace("(", ""));
-    var ln = Number(center[1].replace(")", ""));
-    map.setCenter({lat: lt, lng: ln});
- 	}
 
-	map.addListener('dragend', function() {
-  	var center = map.getCenter();
-    localStorage.centerData = center; 
-	});
-	
-  function setCurrentLocation() {
-  	if (!localStorage.centerData) {
-  		if (navigator.geolocation) {
-	      navigator.geolocation.getCurrentPosition(setPosition);
-	   	} else { 
-	      alert("Geolocalização não suportada por este navegador.");
-	    }
-	  }
-  }  
 
-  function setPosition(position) {
-    var LatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-    map.setCenter(LatLong);
-    map.setZoom(15);
-  
-  }
+var polygons = [];
+var areasData = [];
 
-  // DEFINIR CENTRO E ZOOM - FIM
-  
-  // ARMAZENAR POLÍGONOS NO LOCAL STORAGE
 
-  
- 	if(localStorage.areasData) {
- 		areasData = JSON.parse(localStorage.areasData);
- 	}
- 
-  
-  
-	google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
-  	//console.log('Polígono completo', polygon);
-    var encodedPath = google.maps.geometry.encoding.encodePath(polygon.getPath());
-    var decodedPath = (google.maps.geometry.encoding.decodePath(encodedPath));
-    let nomeArea = prompt("Digite o código deste talhão conforme cadastrado no aplicativo (ou pressione Cancelar para apagar):");
-    while (nomeArea != null && checkVal(areasData, nomeArea)) {
-    	nomeArea = prompt("Digite o código deste talhão conforme cadastrado no aplicativo (ou pressione Cancelar para apagar):");
+// DEFINIR CENTRO E ZOOM
+
+setCurrentLocation();
+
+
+if (localStorage.zoomData) {
+  map.setZoom(+localStorage.zoomData);
+ }
+
+map.addListener('zoom_changed', function() {
+  var zoom = map.getZoom();
+  localStorage.zoomData = zoom; 
+});
+
+if (localStorage.centerData) {
+  var center= localStorage.centerData.split(',');
+  var lt = Number(center[0].replace("(", ""));
+  var ln = Number(center[1].replace(")", ""));
+  map.setCenter({lat: lt, lng: ln});
+ }
+
+map.addListener('dragend', function() {
+  var center = map.getCenter();
+  localStorage.centerData = center; 
+});
+
+function setCurrentLocation() {
+  if (!localStorage.centerData) {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(setPosition);
+     } else { 
+      alert("Geolocalização não suportada por este navegador.");
     }
+  }
+}  
+
+function setPosition(position) {
+  var LatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+  map.setCenter(LatLong);
+  map.setZoom(15);
+
+}
+
+// DEFINIR CENTRO E ZOOM - FIM
+
+// ARMAZENAR POLÍGONOS NO LOCAL STORAGE
+
+
+ if(localStorage.areasData) {
+   areasData = JSON.parse(localStorage.areasData);
+ }
+
+
+
+google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
+  //console.log('Polígono completo', polygon);
+  var encodedPath = google.maps.geometry.encoding.encodePath(polygon.getPath());
+  var decodedPath = (google.maps.geometry.encoding.decodePath(encodedPath));
+  let nomeArea = prompt("Digite o código deste talhão conforme cadastrado no aplicativo (ou pressione Cancelar para apagar):");
+  while (nomeArea != null && checkVal(areasData, nomeArea)) {
+    nomeArea = prompt("Digite o código deste talhão conforme cadastrado no aplicativo (ou pressione Cancelar para apagar):");
+  }
+  
+  if (nomeArea != null && nomeArea != '') {
+
+     var rowid = Promise.resolve(findKey(nomeArea));
     
-    if (nomeArea != null && nomeArea != '') {
- 
- 			var rowid = Promise.resolve(findKey(nomeArea));
-      
-      rowid.then((value) => {
-      
-      	if (value != null && value != '') {
- 
-		    	var areaHa = (1/10000) * google.maps.geometry.spherical.computeArea(polygon.getPath());
-		    	areasData.push([nomeArea, encodedPath, areaHa]);
-		      polygons.push(polygon);
-		    	localStorage.setItem('areasData', JSON.stringify(areasData));
-		    	polygonActions(polygon, map, "<p>" + nomeArea + "</p>" + Math.round(100 * areaHa)/100 + " ha");  
-          
-          updateRow (value, nomeArea, areaHa, decodedPath);
-          alert("Os dados do talhão de código ''" + nomeArea + "'' foram atualizados no aplicativo.");
-          
-         }
-  			
-			});
-      rowid.catch((erro) => {
-      	//alert(erro);
+    rowid.then((value) => {
+    
+      if (value != null && value != '') {
+
+        var areaHa = (1/10000) * google.maps.geometry.spherical.computeArea(polygon.getPath());
+        areasData.push([nomeArea, encodedPath, areaHa]);
+        polygons.push(polygon);
+        localStorage.setItem('areasData', JSON.stringify(areasData));
+        polygonActions(polygon, map, "<p>" + nomeArea + "</p>" + Math.round(100 * areaHa)/100 + " ha");  
         
-        	alert("O código de talhão ''" + nomeArea + "'' não está cadastrado no seu app. Vá até a opção ''Talhões de cultivo'' do menu e adicione cada talhão. Em seguida, volte para ''Ferramentas - Mapear talhões'' e digite os mesmos códigos ao adicionar cada talhão ao mapa.");
-        polygon.setMap(null);
+        updateRow (value, nomeArea, areaHa, decodedPath);
+        alert("Os dados do talhão de código ''" + nomeArea + "'' foram atualizados no aplicativo.");
         
-      });
-            
- 		} else {
-    	
+       }
+      
+    });
+    rowid.catch((erro) => {
+      //alert(erro);
+      
+        alert("O código de talhão ''" + nomeArea + "'' não está cadastrado no seu app. Vá até a opção ''Talhões de cultivo'' do menu e adicione cada talhão. Em seguida, volte para ''Ferramentas - Mapear talhões'' e digite os mesmos códigos ao adicionar cada talhão ao mapa.");
       polygon.setMap(null);
       
-    }
+    });
+          
+   } else {
     
-	});
+    polygon.setMap(null);
+    
+  }
   
+});
+
+
+function checkVal(array, value) {
+  // `Array#some` loops through the array until the iterator
+  // function returns true; it returns true if the iterator
+  // does at some point, false otherwise
+  return array.some(function(entry) {
+      // If this entry in the array is an array, recurse
+      if (Array.isArray(entry)) {
+          return checkVal(entry, value);
+      }
+
+      // It isn't, do an equality check
+      return entry === value;
+  });
+}
+
+// ARMAZENAR POLÍGONO NO LOCAL STORAGE - FIM    
+
+
+
+
+// MOSTRAR POLÍGONOS ARMAZENADOS
   
-  function checkVal(array, value) {
-    // `Array#some` loops through the array until the iterator
-    // function returns true; it returns true if the iterator
-    // does at some point, false otherwise
-    return array.some(function(entry) {
-        // If this entry in the array is an array, recurse
-        if (Array.isArray(entry)) {
-            return checkVal(entry, value);
+ var dataStr = ''
+
+if(localStorage.areasData) {
+
+  areasData = JSON.parse(localStorage.areasData);
+  areasData.forEach(showPolygon);
+  areasData.forEach(appendDataStr);
+  
+
+}
+
+function appendDataStr(value, index, array) {
+  dataStr += '{"Nome": "' + value[0] + '", "Caminho": "' + google.maps.geometry.encoding.decodePath(value[1]) + '", "Área (ha)": "' + value[2] + '"}\n'
+    
+}
+
+document.getElementById("remover").addEventListener("click", removeSelectedPolygons);
+
+function removeSelectedPolygons() {
+  
+  var selectedPolygons = [];
+  
+  polygons.forEach( function(item, index) {
+    if(item.getEditable()) {
+      selectedPolygons.push(item);
+     }
+  });
+  
+  if (selectedPolygons.length > 0) {
+  
+    if (confirm("Confirma remoção da(s) área(s) selecionada(s)?")) {
+
+      for (var i = 0; i < polygons.length; i++) { 
+                                 
+        if (polygons[i].getEditable()) { 
+          polygons[i].setMap(null);
+          polygons.splice(i, 1); 
+          areasData.splice(i, 1);
+          i--; 
+          
         }
-
-        // It isn't, do an equality check
-        return entry === value;
-    });
-	}
-  
-  // ARMAZENAR POLÍGONO NO LOCAL STORAGE - FIM    
-  
- 
-  
-  
-  // MOSTRAR POLÍGONOS ARMAZENADOS
-	  
- 	var dataStr = ''
-  
-  if(localStorage.areasData) {
-  
-  	areasData = JSON.parse(localStorage.areasData);
-  	areasData.forEach(showPolygon);
-    areasData.forEach(appendDataStr);
-    
-  
-  }
-
-  function appendDataStr(value, index, array) {
-  	dataStr += '{"Nome": "' + value[0] + '", "Caminho": "' + google.maps.geometry.encoding.decodePath(value[1]) + '", "Área (ha)": "' + value[2] + '"}\n'
-  	  
-  }
-
-	document.getElementById("remover").addEventListener("click", removeSelectedPolygons);
-
-	function removeSelectedPolygons() {
-		
-    var selectedPolygons = [];
-    
-    polygons.forEach( function(item, index) {
-    	if(item.getEditable()) {
-	      selectedPolygons.push(item);
-  	   }
-    });
-    
-    if (selectedPolygons.length > 0) {
-    
-    	if (confirm("Confirma remoção da(s) área(s) selecionada(s)?")) {
-
-				for (var i = 0; i < polygons.length; i++) { 
-                                   
-        	if (polygons[i].getEditable()) { 
-            polygons[i].setMap(null);
-  					polygons.splice(i, 1); 
-            areasData.splice(i, 1);
-  					i--; 
-            
-        	}
-    		}
-        
-	      localStorage.setItem('areasData', JSON.stringify(areasData));
-
-
-			}			  			    
+      }
       
-    } else {
-    	alert("Para remover uma área, clique sobre ela e depois pressione o botão 'REMOVER ÁREAS SELECIONADAS'.");
+      localStorage.setItem('areasData', JSON.stringify(areasData));
+
+
+    }			  			    
+    
+  } else {
+    alert("Para remover uma área, clique sobre ela e depois pressione o botão 'REMOVER ÁREAS SELECIONADAS'.");
+  
+  }
+
+  
+}
+
+
+function showPolygon(value, index, array) {
+  //alert(value);
+  const path = google.maps.geometry.encoding.decodePath(value[1]);
+  
+  var poly = new google.maps.Polygon({
+    map,
+    path:path,
+    clickable: true,
+    editable: false,
+    strokeColor: "#00FF00",
+    geodesic: true
+
+  });
+  
+  polygons.push(poly);
+  
+  
+  
+  
+  polygonActions(poly, map, "<p>" + value[0] + "</p>" + Math.round(100 * value[2])/100 + " ha");  
+}
+
+function polygonActions(polygon, map, html) { 
+  google.maps.event.addListener(polygon, 'mouseover', function() { 
+    var vertices = polygon.getPath();
+    var bounds = new google.maps.LatLngBounds();
+    vertices.forEach(function(xy,i){
+       bounds.extend(xy);
+    });
+    infoWindow = new google.maps.InfoWindow();
+    infoWindow.setContent(html); 
+    infoWindow.setPosition(bounds.getCenter());
+    infoWindow.open(map, polygon); 
+  });
+  google.maps.event.addListener(polygon,'mouseout',function(){
+    infoWindow.close(map, polygon);
+    //polygon.setEditable(false);
+  });
+  
+  google.maps.event.addListener(polygon,'click', function()	{
+    
+    if (! polygon.getEditable()) {
+    
+      polygon.setEditable(true);
+
+     } else {
+      polygon.setEditable(false);
     
     }
+    
 
-    
-	}
-
-
-	function showPolygon(value, index, array) {
-  	//alert(value);
-    const path = google.maps.geometry.encoding.decodePath(value[1]);
-    
-  	var poly = new google.maps.Polygon({
-    	map,
-      path:path,
-      clickable: true,
-      editable: false,
-      strokeColor: "#00FF00",
-      geodesic: true
-
-    });
-    
-		polygons.push(poly);
-    
-    
-		
-		
-    polygonActions(poly, map, "<p>" + value[0] + "</p>" + Math.round(100 * value[2])/100 + " ha");  
-  }
+  });
   
-  function polygonActions(polygon, map, html) { 
-		google.maps.event.addListener(polygon, 'mouseover', function() { 
-    	var vertices = polygon.getPath();
-    	var bounds = new google.maps.LatLngBounds();
-    	vertices.forEach(function(xy,i){
-       	bounds.extend(xy);
-    	});
-    	infoWindow = new google.maps.InfoWindow();
-			infoWindow.setContent(html); 
-      infoWindow.setPosition(bounds.getCenter());
-			infoWindow.open(map, polygon); 
-		});
-    google.maps.event.addListener(polygon,'mouseout',function(){
-    	infoWindow.close(map, polygon);
-      //polygon.setEditable(false);
-    });
-    
-    google.maps.event.addListener(polygon,'click', function()	{
-      
-      if (! polygon.getEditable()) {
-      
-      	polygon.setEditable(true);
- 
- 			} else {
-      	polygon.setEditable(false);
-      
-    	}
-      
-
-    });
-    
 //  	google.maps.event.addListener(polygon.getPath(), 'set_at', function(evt) {
 //      changePolygon(polygon);
 //    })
@@ -340,62 +341,61 @@ function initMap() {
 //    })
 
 
-	} 
+} 
 
-	function changePolygon(polygon) {
+function changePolygon(polygon) {
 
-    polygons.forEach( function(item, index) {
-    	var areaHaNew = (1/10000) * google.maps.geometry.spherical.computeArea(item.getPath());
-      encodedPath = google.maps.geometry.encoding.encodePath(polygon.getPath());
-      if (areaHaNew != areasData[index][2]) {
-      
-      	if (confirm('A modificação no tamanho da área ' + areasData[index][0] + ' pode causar inconsistências no histórico e nas atividades já programadas. Confirma a modificação?')) {
-        	areasData[index][1] = encodedPath;
-      		areasData[index][2] = areaHaNew;
-          localStorage.setItem('areasData', JSON.stringify(areasData));
-      
-      	}
+  polygons.forEach( function(item, index) {
+    var areaHaNew = (1/10000) * google.maps.geometry.spherical.computeArea(item.getPath());
+    encodedPath = google.maps.geometry.encoding.encodePath(polygon.getPath());
+    if (areaHaNew != areasData[index][2]) {
+    
+      if (confirm('A modificação no tamanho da área ' + areasData[index][0] + ' pode causar inconsistências no histórico e nas atividades já programadas. Confirma a modificação?')) {
+        areasData[index][1] = encodedPath;
+        areasData[index][2] = areaHaNew;
+        localStorage.setItem('areasData', JSON.stringify(areasData));
+    
       }
-      //console.log(a);
-    });
- 
+    }
+    //console.log(a);
+  });
 
 
-	}
-  
- 
-  // MOSTRAR POLÍGONOS ARMAZENADOS - FIM
-  
+
+}
+
+
+// MOSTRAR POLÍGONOS ARMAZENADOS - FIM
+
 }
 
 
 async function updateRow (rowid, nomeArea, area, decodedPath) {
-  params = getParams();
-	var email = params.email;
-  //alert(email);
-	const corpo = {
-		"Action": "Edit",
-    "Properties": {"RunAsUserEmail": "" + email + ""},
-		"Rows": 
-    	[{"Row ID": "" + rowid + "",
-      	"codigo": "" + nomeArea + "",
-      	"area_ha": "" + area + "",
-        "poligono_wgs": "" + decodedPath + ""
-      }]
-		}
-    
-  const response = await fetch("https://api.appsheet.com/api/v2/apps/01d1a824-48ec-4802-932c-584babc06d63/tables/local_cultivo/Action?applicationAccessKey=V2-L6KL8-8CkIJ-e3NIi-8xNpB-dX5C0-qJKBV-OzCyX-95vJt", {
-    method: "POST",
-    body: JSON.stringify(corpo),
-    //body: corpo,
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
-
-  if (!response.ok) {
-    throw new Error(`Request failed with status ${reponse.status}`)
+params = getParams();
+var email = params.email;
+//alert(email);
+const corpo = {
+  "Action": "Edit",
+  "Properties": {"RunAsUserEmail": "" + email + ""},
+  "Rows": 
+    [{"Row ID": "" + rowid + "",
+      "area_ha": "" + area + "",
+      "poligono_wgs": "" + decodedPath + ""
+    }]
   }
+  
+const response = await fetch("https://api.appsheet.com/api/v2/apps/01d1a824-48ec-4802-932c-584babc06d63/tables/local_cultivo/Action?applicationAccessKey=V2-L6KL8-8CkIJ-e3NIi-8xNpB-dX5C0-qJKBV-OzCyX-95vJt", {
+  method: "POST",
+  body: JSON.stringify(corpo),
+  //body: corpo,
+  headers: {
+    "Content-Type": "application/json"
+  }
+})
+
+if (!response.ok) {
+  throw new Error(`Request failed with status ${reponse.status}`)
+}
 // 	var body = await response.json(); 
 //  body = JSON.stringify(body);
 //  body = JSON.parse(body);
@@ -407,37 +407,37 @@ async function updateRow (rowid, nomeArea, area, decodedPath) {
 
 
 async function findKey (codigo) {
-	
-  params = getParams();
-	var email = params.email;
-  //alert(email);
 
-  const corpo = {
-		"Action": "Find",
- 		 "Properties": {
-     		"Selector": "Filter(local_cultivo, [codigo] = '" + codigo + "')",
-        "RunAsUserEmail": "" + email + "",
-			},
-		"Rows": 
-    	[
-			]
-		}
-  const response = await fetch("https://api.appsheet.com/api/v2/apps/01d1a824-48ec-4802-932c-584babc06d63/tables/local_cultivo/Action?applicationAccessKey=V2-L6KL8-8CkIJ-e3NIi-8xNpB-dX5C0-qJKBV-OzCyX-95vJt", {
-    method: "POST",
-    body: JSON.stringify(corpo),
-    //body: corpo,
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
+params = getParams();
+var email = params.email;
+//alert(email);
 
-  if (!response.ok) {
-    throw new Error(`Request failed with status ${reponse.status}`)
+const corpo = {
+  "Action": "Find",
+    "Properties": {
+       "Selector": "Filter(local_cultivo, [codigo] = '" + codigo + "')",
+      "RunAsUserEmail": "" + email + "",
+    },
+  "Rows": 
+    [
+    ]
   }
- 	var body = await response.json(); 
-  body = JSON.stringify(body);
-  body = JSON.parse(body);
-  return body[0]["Row ID"];
+const response = await fetch("https://api.appsheet.com/api/v2/apps/01d1a824-48ec-4802-932c-584babc06d63/tables/local_cultivo/Action?applicationAccessKey=V2-L6KL8-8CkIJ-e3NIi-8xNpB-dX5C0-qJKBV-OzCyX-95vJt", {
+  method: "POST",
+  body: JSON.stringify(corpo),
+  //body: corpo,
+  headers: {
+    "Content-Type": "application/json"
+  }
+})
+
+if (!response.ok) {
+  throw new Error(`Request failed with status ${reponse.status}`)
+}
+ var body = await response.json(); 
+body = JSON.stringify(body);
+body = JSON.parse(body);
+return body[0]["Row ID"];
 
 }
 
@@ -450,13 +450,14 @@ var pairs = document.URL.substring(idx+1, document.URL.length).split('&');
 for (var i=0; i<pairs.length; i++) {
 nameVal = pairs[i].split('=');
 params[nameVal[0]] = nameVal[1];
-   }
+ }
 }
 return params;
 }
 
 
 // FIM
+
 
 
 

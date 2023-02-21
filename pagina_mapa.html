@@ -154,6 +154,7 @@ function initMap() {
 	google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
   	//console.log('Polígono completo', polygon);
     var encodedPath = google.maps.geometry.encoding.encodePath(polygon.getPath());
+    var decodedPath = (google.maps.geometry.encoding.decodePath(encodedPath));
     let nomeArea = prompt("Digite o código deste talhão conforme cadastrado no aplicativo (ou pressione Cancelar para apagar):");
     while (nomeArea != null && checkVal(areasData, nomeArea)) {
     	nomeArea = prompt("Digite o código deste talhão conforme cadastrado no aplicativo (ou pressione Cancelar para apagar):");
@@ -173,7 +174,7 @@ function initMap() {
 		    	localStorage.setItem('areasData', JSON.stringify(areasData));
 		    	polygonActions(polygon, map, "<p>" + nomeArea + "</p>" + Math.round(100 * areaHa)/100 + " ha");  
           
-          updateRow (value, areaHa);
+          updateRow (value, areaHa, decodedPath);
           alert("Os dados do talhão de código ''" + nomeArea + "'' foram atualizados no aplicativo.");
           
          }
@@ -368,7 +369,7 @@ function initMap() {
 }
 
 
-async function updateRow (rowid, area) {
+async function updateRow (rowid, area, decodedPath) {
   params = getParams();
 	var email = params.email;
   //alert(email);
@@ -377,7 +378,8 @@ async function updateRow (rowid, area) {
     "Properties": {"RunAsUserEmail": "" + email + ""},
 		"Rows": 
     	[{"Row ID": "" + rowid + "",
-      	"area_ha": "" + area + ""
+      	"area_ha": "" + area + "",
+        "poligono_wgs": "" + decodedPath + ""
       }]
 		}
     

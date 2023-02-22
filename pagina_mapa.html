@@ -52,6 +52,7 @@ body {
 <script>
 
 
+
 // INÍCIO
 
 
@@ -162,7 +163,7 @@ google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygo
   }
   
   if (nomeArea != null && nomeArea != '') {
-
+  
      var rowid = Promise.resolve(findKey(nomeArea));
     
     rowid.then((value) => {
@@ -216,8 +217,6 @@ function checkVal(array, value) {
 // ARMAZENAR POLÍGONO NO LOCAL STORAGE - FIM    
 
 
-
-
 // MOSTRAR POLÍGONOS ARMAZENADOS
   
  var dataStr = ''
@@ -237,6 +236,8 @@ function appendDataStr(value, index, array) {
 }
 
 document.getElementById("remover").addEventListener("click", removeSelectedPolygons);
+document.getElementById("salvar").addEventListener("click", changePolygon);
+
 
 function removeSelectedPolygons() {
   
@@ -343,18 +344,44 @@ function polygonActions(polygon, map, html) {
 
 } 
 
-function changePolygon(polygon) {
+function changePolygon() {
 
   polygons.forEach( function(item, index) {
+  
     var areaHaNew = (1/10000) * google.maps.geometry.spherical.computeArea(item.getPath());
-    encodedPath = google.maps.geometry.encoding.encodePath(polygon.getPath());
-    if (areaHaNew != areasData[index][2]) {
+    encodedPath = google.maps.geometry.encoding.encodePath(item.getPath());
+    decodedPath = (google.maps.geometry.encoding.decodePath(encodedPath));
     
-      if (confirm('A modificação no tamanho da área ' + areasData[index][0] + ' pode causar inconsistências no histórico e nas atividades já programadas. Confirma a modificação?')) {
-        areasData[index][1] = encodedPath;
-        areasData[index][2] = areaHaNew;
-        localStorage.setItem('areasData', JSON.stringify(areasData));
+    if (item.getEditable()) { 
+    //if (areaHaNew != areasData[index][2]) {
     
+      if (confirm('A modificação no tamanho do talhão ' + areasData[index][0] + ' pode causar inconsistências no histórico e nas atividades já programadas. Confirma a modificação?')) {
+                  
+        rowid = Promise.resolve(findKey(areasData[index][0]));
+    
+        rowid.then((value) => {
+    
+          if (value != null && value != '') {
+          
+            areasData[index][1] = encodedPath;
+            areasData[index][2] = areaHaNew;
+            polygonActions(item, map, "<p>" + areasData[index][0] + "</p>" + Math.round(100 * areaHaNew)/100 + " ha");  
+            localStorage.setItem('areasData', JSON.stringify(areasData));
+
+            updateRow (value, areasData[index][0], areaHaNew, decodedPath);
+            alert("Os dados do talhão de código ''" + nomeArea + "'' foram atualizados no aplicativo.");
+           }
+          
+        });
+         
+        rowid.catch((erro) => {
+             
+          alert("O código de talhão ''" + areasData[index][0] + "'' não está cadastrado no seu app. Vá até a opção ''Talhões de cultivo'' do menu e adicione cada talhão. Em seguida, volte para ''Ferramentas - Mapear talhões'' e digite os mesmos códigos ao adicionar cada talhão ao mapa.");
+        
+          item.setMap(null);
+      
+        });
+
       }
     }
     //console.log(a);
@@ -460,7 +487,6 @@ return params;
 
 
 
-
 </script>
 
 
@@ -468,7 +494,8 @@ return params;
 
   <body>
     <div id="floating-panel">
-      <input id="remover" type="button" value="Remover áreas selecionadas" />
+      <input id="salvar" type="button" value="SALVAR ALTERAÇÕES" />
+      <input id="remover" type="button" value="REMOVER ÁREAS SELECIONADAS" />
      </div>
     <div id="map"></div>
 

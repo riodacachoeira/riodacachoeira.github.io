@@ -51,8 +51,6 @@ body {
 </style>
 <script>
 
-
-
 // INÍCIO
 
 
@@ -355,7 +353,7 @@ function changePolygon() {
     if (item.getEditable()) { 
     //if (areaHaNew != areasData[index][2]) {
     
-      if (confirm('A modificação no tamanho do talhão ' + areasData[index][0] + ' pode causar inconsistências no histórico e nas atividades já programadas. Confirma a modificação?')) {
+      if (confirm('A modificação no tamanho do talhão ""' + areasData[index][0] + '"" pode causar inconsistências no histórico e nas atividades já programadas. Confirma a modificação?')) {
                   
         rowid = Promise.resolve(findKey(areasData[index][0]));
     
@@ -369,7 +367,7 @@ function changePolygon() {
             localStorage.setItem('areasData', JSON.stringify(areasData));
 
             updateRow (value, areasData[index][0], areaHaNew, decodedPath);
-            alert("Os dados do talhão de código ''" + nomeArea + "'' foram atualizados no aplicativo.");
+            alert("Os dados do talhão de código ''" + areasData[index][0] + "'' foram atualizados no aplicativo.");
            }
           
         });

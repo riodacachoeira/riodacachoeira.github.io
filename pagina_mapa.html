@@ -24,7 +24,7 @@
 
 #floating-panel {
   position: absolute;
-  top: 10px;
+  bottom: 10px;
   left: 25%;
   z-index: 5;
   /* background-color: #fff; */
@@ -67,7 +67,7 @@ const drawingManager = new google.maps.drawing.DrawingManager({
   drawingMode: google.maps.drawing.OverlayType.POLYGON,
   drawingControl: true,
   drawingControlOptions: {
-    position: google.maps.ControlPosition.TOP_RIGHT,
+    position: google.maps.ControlPosition.TOP_CENTER,
     drawingModes: [
       //google.maps.drawing.OverlayType.MARKER,
       //google.maps.drawing.OverlayType.CIRCLE,
